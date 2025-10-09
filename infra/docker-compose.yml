@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:14
+    container_name: trading_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: tradinguser
+      POSTGRES_PASSWORD: tradingpass
+      POSTGRES_DB: tradingdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: trading_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@tradingbot.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  backend:
+    build: ../backend
+    container_name: trading_backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: tradinguser
+      DB_PASSWORD: tradingpass
+      DB_NAME: tradingdb
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
